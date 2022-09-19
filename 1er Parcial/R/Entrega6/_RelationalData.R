@@ -19,13 +19,12 @@ totalGolesXTeamID <- teamstats %>%
   summarise( totalGoles= sum(goals, na.rm=TRUE))
 
 maximosEquiposGoleadores <- totalGolesXTeamID %>%
-  filter( totalGoles > 498) %>%
-  arrange(desc(totalGoles))
+  filter( totalGoles > 498) 
 
 maximosEquiposGoleadores <- maximosEquiposGoleadores %>%
   inner_join(teams, by="teamID")
 
-maximosEquiposGoleadores[order(-maximosEquiposGoleadores$totalGoles),]
+maximosEquiposGoleadores <- maximosEquiposGoleadores[order(-maximosEquiposGoleadores$totalGoles),]
 ######################################################
 
 ######################################################
@@ -68,16 +67,60 @@ tiempoDistribuido <- shots %>%
 tiempoDistribuido <- tiempoDistribuido %>%
   inner_join(maximosGoleadores, by="playerID")
 
+#####
+# Este for me ayudo a contar la cantidad de filas de un mismo nombre
+for (x in unique(gytXTeam$name)) {
+       print(nrow(subset(gytXTeam,gytXTeam$name == x)))
+       print(x)
+     }
+#####
+
+
 ######################################################
 ######################################################
 ### GRAFICOS
+maximosEquiposGoleadores %>%
+  mutate(name = fct_reorder(name, totalGoles)) %>%
+  ggplot(mapping=aes(x=name, y=totalGoles, fill=name)) + 
+  geom_bar(stat='identity' ) +
+  labs(title='Máximos goles x Equipo',
+       subtitle='Temporadas 2014 - 2020',
+       y = 'Total de goles x equipo',
+       fill = "Color del equipo") +
+      theme(
+        plot.title = element_text(color="red", face="bold.italic"),
+        plot.subtitle = element_text(color="red", face="bold.italic"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(color="#993333", face="bold"))
 
-ggplot(maximosEquiposGoleadores) + geom_bar(aes(x=as.character(teamID), y=totalGoles, fill=name)
-                                     ,stat='identity', )
+######################################################
 
-plot(gytXTeam$totalTiros, gytXTeam$totalGoles, col="blue")
+ggplot(gytXTeam, aes(x=totalGoles, y=totalTiros, color=name)) + 
+  geom_point() +
+  labs(title='Diferencias de tiros y goles x Equipo',
+       subtitle='Temporadas 2014 - 2020',
+       y = 'Cantidad de Tiros x Partido',
+       x = 'Cantidad de Goles',
+       color = "Color del equipo") +
+  theme(
+    plot.title = element_text(color="#993399", face="bold.italic"),
+    plot.subtitle = element_text(color="#993399", face="bold.italic"),
+    axis.title.x = element_text(color="black", face="bold"),
+    axis.title.y = element_text(color="black", face="bold"))
 
-ggplot(tiempoDistribuido, aes(minute, as.character(shooterID), fill = name)) +
-  geom_density_ridges(rel_min_height=.01)
+######################################################
+
+ggplot(tiempoDistribuido, aes(minute, name, fill = totalGoles)) +
+  geom_density_ridges(rel_min_height=.01) +
+  labs(title='Densidad de goles x minuto para los mayor goleadores de la Premier League',
+       subtitle='Temporadas 2014 - 2020',
+       y = 'Jugador',
+       x = 'Minuto',
+       fill = "Total de goles") +
+  theme(
+    plot.title = element_text(color="darkblue", face="bold.italic"),
+    plot.subtitle = element_text(color="darkblue", face="bold.italic"),
+    axis.title.x = element_text(color="black", face="bold"),
+    axis.title.y = element_text(color="black", face="bold"))
 
 
