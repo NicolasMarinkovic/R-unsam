@@ -7,7 +7,7 @@ library(dplyr)
 library(readxl)
 library(nycflights13)
 
-setwd('C:/Users/nicol/OneDrive/Escritorio/Facultad/Introducccion a Ciencia de Datos/R-unsam/1er Parcial/R/EntregaFinal')
+setwd('C:/Facultad/Unsam/Licenciatura en ciencia de Datos/Introduccion a Ciencia de Datos/1er Parcial/R/EntregaFinal')
 
 df = read_csv('forbes_celebrity_100.csv')
 
@@ -27,22 +27,26 @@ df_actoresElegidos <- df_pagosAnuales %>%
 
 df_actoresElegidos %>%
 group_by(Name) %>%
-ggplot() + geom_bar(aes(reorder(Name,usdPromedio), y=(Pay/n_apariciones),
-                                fill=Name),
-                            stat = 'identity') +
+ggplot(aes(reorder(Name,usdPromedio), y=(Pay/n_apariciones),
+           fill=reorder(Name,usdPromedio))) + 
+  geom_bar(stat = 'identity') +
+  geom_hline(yintercept = 40)+
   labs(title = 'Sueldos aproximados de algunas estrellas mencionadas',
          subtitle = 'Sueldos entre 2005 y 2020', 
          x = 'Actor',
          y = 'Pago promedio por pelicula',
-         fill = "Actores") +
+         fill = "Actores",
+         caption = "Los promedios son en Millones USD") +
   theme(
     plot.title = element_text(family = 'sans', color='Black',face="bold"),
     plot.subtitle = element_text(family = 'sans', color='Black'),
     axis.title.x = element_text(family = 'serif', color='Black',face="bold"),
     axis.title.y = element_text(family = 'serif', color='Black',face="bold"),
-    plot.caption = element_text(family = 'serif', color = '#757575'),
+    plot.caption = element_text(family = 'serif', color = '#757575',size = 15),
     axis.line = element_line(color = "black", size = 0.5, linetype = 1),
-
+    axis.text.x = element_blank(), #esto lo deja en blanco al eje
     axis.ticks.x = element_blank() #esto lo deja en blanco al eje
   )
+
+ggsave('barrasActoresElegidos.png', device = 'png')
 
